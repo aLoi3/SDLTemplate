@@ -33,13 +33,15 @@ int Game::loop()
 		std::cout << "SDL initalisation failed." << std::endl;
 		return -1;
 	}
+	Game::initialiseSDL();
 
-	// Initialise GL_Context
+	// Initialise GLEW
 	if (gl_Context == nullptr)
 	{
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "SDL_CreateContext Failed", SDL_GetError(), NULL);
 		return -1;
 	}
+	Game::initialiseGLEW();
 
 	//Current sdl event
 	SDL_Event event;
@@ -131,6 +133,24 @@ int Game::initialiseGLEW()
 	{
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "GLEW Initialisation Failed", (char*)glewGetErrorString(error), NULL);
 	}
+
+	glGenVertexArrays(1, &VertexArrayID);
+	glBindVertexArray(VertexArrayID);
+
+	// An array of 3 vectors which represents 3 vertices
+	static const GLfloat g_vertex_buffer_data[] = {
+		-1.0f, -1.0f, 0.0f,
+		1.0f, -1.0f, 0.0f,
+		0.0f,  1.0f, 0.0f,
+	};
+
+	// Generate 1 buffer, put the resulting identifier in vertexbuffer
+	glGenBuffers(1, &vertexbuffer);
+	// The following commands will talk about our 'vertexbuffer' buffer
+	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+	// Give our vertices to OpenGL.
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+
 	return 0;
 }
 
@@ -152,6 +172,21 @@ void Game::render()
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
+	// 1st attribute buffer : vertices
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+	glVertexAttribPointer(
+		0,			// attribute 0. No particular reason for 0, but must match the layout in the shader.
+		3,			// size
+		GL_FLOAT,	// type
+		GL_FALSE,	// normalized?
+		0,			// stride
+		(void*)0	// array buffer offset
+	);
+	// Draw the triangle !
+	glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 trangle
+	glDisableVertexAttribArray(0);
+
 	SDL_GL_SwapWindow(mainWindow);
 }
 
@@ -163,4 +198,6 @@ void Game::clean()
 	IMG_Quit();
 	SDL_Quit();
 	SDL_GL_DeleteContext(gl_Context);
+	glDeleteVertexArrays(1, &VertexArrayID);
+	glDeleteBuffers(1, &vertexbuffer);
 }
