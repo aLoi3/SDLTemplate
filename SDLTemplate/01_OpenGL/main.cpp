@@ -3,9 +3,11 @@
 
 int main(int argc, char *argv[])
 {
-	//Game * pGame = new Game();
+	Game * pGame = new Game();
 
-	//pGame->loop();
+	pGame->initialise();
+
+	pGame->loop();
 
 	return 0;
 }

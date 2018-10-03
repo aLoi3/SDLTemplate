@@ -17,13 +17,19 @@ public:
 	int initialiseSDL();
 	int initialiseGLEW();
 	bool SetOpenGLAttributes();
+	int initialise();
 
 private:
 	SDL_Window* mainWindow = nullptr;
-	SDL_GLContext gl_Context = SDL_GL_CreateContext(mainWindow);
+	SDL_GLContext gl_Context;
 	GLuint VertexArrayID;
 	GLuint vertexbuffer;
 
-	bool isRunning = true;
+	//Initialise times
+	float lastTime = 0;
+	float tickTime = 0;
+	float deltaTime = 0;
+
+	bool isRunning = false;
 };
 

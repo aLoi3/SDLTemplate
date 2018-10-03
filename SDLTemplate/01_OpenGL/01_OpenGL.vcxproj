@@ -22,7 +22,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{1C1AF3DD-6ED2-4BFA-A7AA-9B6B0BB50191}</ProjectGuid>
     <RootNamespace>SDLTemplate</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -72,7 +72,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)\Intermediate</IntDir>
-    <LibraryPath>..\glew-2.1.0\lib\Release\Win32;..\Libraries\SDL2_image-2.0.3\lib\x86;..\Libraries\SDL2-2.0.8\lib\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>..\glew-2.1.0\lib\Release\Win32;..\Libraries\SDL2_image-2.0.3\lib\x86;..\Libraries\SDL2-2.0.8\lib\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LibraryPath>..\Libraries\glew-2.1.0\lib\Release\Win32;..\Libraries\SDL2_image-2.0.3\lib\x86;..\Libraries\SDL2-2.0.8\lib\x86;$(LibraryPath)</LibraryPath>
@@ -85,13 +85,13 @@
       <AdditionalIncludeDirectories>..\Libraries\glew-2.1.0\include;..\Libraries\SDL2_image-2.0.3\include;..\Libraries\SDL2-2.0.8\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>..\Libraries\glew-2.1.0\lib\Release\Win32;..\Libraries\SDL2_image-2.0.3\lib\x86;..\Libraries\SDL2-2.0.8\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;glew32.lib;OpenGL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(VC_LibraryPath_x86);C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17134.0\um\x86;..\Libraries\glew-2.1.0\lib\Release\Win32;..\Libraries\SDL2_image-2.0.3\lib\x86;..\Libraries\SDL2-2.0.8\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OpenGL32.Lib;SDL2.lib;SDL2main.lib;SDL2_image.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
     <PostBuildEvent>
       <Command>copy ..\Libraries\SDL2-2.0.8\lib\x86\SDL2.dll "$(ProjectDir)\SDL2.dll"
-copy ..\Libraries\glew-2.1.0\bin\Release\x64\glew32.dll $(OutDir)\glew32.dll</Command>
+copy ..\Libraries\glew-2.1.0\bin\Release\Win32\glew32.dll $(OutDir)\glew32.dll</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

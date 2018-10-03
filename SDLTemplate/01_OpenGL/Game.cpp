@@ -17,32 +17,6 @@ Game::~Game()
 
 int Game::loop()
 {
-	//Initalise random seed
-	std::srand(time(NULL));
-
-
-	//Initialise times
-	float lastTime = 0;
-	float tickTime = 0;
-	float deltaTime = 0;
-
-
-	//Initalise the SDL components
-	if (initialiseSDL() < 0)
-	{
-		std::cout << "SDL initalisation failed." << std::endl;
-		return -1;
-	}
-	Game::initialiseSDL();
-
-	// Initialise GLEW
-	if (gl_Context == nullptr)
-	{
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "SDL_CreateContext Failed", SDL_GetError(), NULL);
-		return -1;
-	}
-	Game::initialiseGLEW();
-
 	//Current sdl event
 	SDL_Event event;
 
@@ -164,6 +138,32 @@ bool Game::SetOpenGLAttributes()
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 
 	return true;
+}
+
+int Game::initialise()
+{
+	//Initalise random seed
+	std::srand(time(NULL));
+
+
+	//Initalise the SDL components
+	if (initialiseSDL() < 0)
+	{
+		std::cout << "SDL initalisation failed." << std::endl;
+		return 1;
+	}
+
+	Game::SetOpenGLAttributes();
+
+	// Initialise GLEW
+	gl_Context = SDL_GL_CreateContext(mainWindow);
+	if (gl_Context == nullptr)
+	{
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "SDL_CreateContext Failed", SDL_GetError(), NULL);
+		return 1;
+	}
+	Game::initialiseGLEW();
+	return 0;
 }
 
 void Game::render()
