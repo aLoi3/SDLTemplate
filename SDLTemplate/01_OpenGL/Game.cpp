@@ -46,11 +46,52 @@ int Game::loop()
 				//Check individual keys by code (can be moved out into main switch statement if fewer keys need to be checked.)
 				switch (event.key.keysym.sym)
 				{
-					case SDLK_ESCAPE:
+					case SDLK_ESCAPE: // Escape key
 						isRunning = false;
+						break;
+
+					case SDLK_UP: // Arrow key up
+						position.y += 0.05f;
+						modelMatrix = glm::translate(position);
+						break;
+
+					case SDLK_DOWN: // Arrow key down
+						position.y -= 0.05f;
+						modelMatrix = glm::translate(position);
+						break;
+
+					case SDLK_RIGHT: // Arrow key right
+						position.x += 0.05f;
+						modelMatrix = glm::translate(position);
+						break;
+
+					case SDLK_LEFT: // Arrow key left
+						position.x -= 0.05f;
+						modelMatrix = glm::translate(position);
+						break;
+
+					case SDLK_q: // Rotate left
+						modelMatrix = glm::rotate(modelMatrix, glm::radians(10), glm::vec3(0.0f, 0.0f, 10.0f));
+						break;
+					case SDLK_e: // Rotate right
 						break;
 				}
 				break;
+			}
+
+			if (event.type == SDL_MOUSEWHEEL)
+			{
+				if (event.wheel.y > 0) // Scroll up
+				{
+					// Scale up the triangle
+					modelMatrix = glm::scale(modelMatrix, glm::vec3(1.05f, 1.05f, 1.05f));
+				}
+
+				if (event.wheel.y < 0) // Scroll down
+				{
+					// Scale down the triangle
+					modelMatrix = glm::scale(modelMatrix, glm::vec3(0.95f, 0.95f, 0.95f));
+				}
 			}
 		}
 
@@ -101,6 +142,7 @@ int Game::initialiseSDL()
 
 int Game::initialiseGLEW()
 {
+	// Initialising GLEW
 	glewExperimental = GL_TRUE;
 	GLenum error = glewInit();
 	if (error != GLEW_OK)
@@ -176,11 +218,20 @@ int Game::getShaders()
 	// Create and compile our GLSL program from the shaders
 	programID = LoadShaders("vertex.glsl", "fragment.glsl");
 
-	position = glm::vec3(0.0f, 0.5f, 0.0f);
+	// Setting matrices to default
+	position = glm::vec3(0.0f, 0.0f, 0.0f);
+	scaling = glm::vec3(1.0f, 1.0f, 1.0f);
+	rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 
-	modelMatrix = glm::translate(position);
+	//translationMatrix = glm::translate(position);
+	//scaleMatrix = glm::scale(scaling);
+	//rotationMatrix = glm::rotate(rotation.x, glm::vec3(1.0f, 0.0f, 0.0f)) * (rotation.y, glm::vec3(0.0f, 1.0f, 0.0f)) * (rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
 
+	//modelMatrix = translationMatrix * rotationMatrix * scaleMatrix;
+
+	// Set Matrix Location
 	modelMatrixLocation = glGetUniformLocation(programID, "modelMatrix");
+
 
 	return 0;
 }

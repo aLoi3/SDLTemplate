@@ -9,6 +9,7 @@
 
 #include <glm\gtx\transform.hpp>
 #include <glm\gtc\type_ptr.hpp>
+#include <glm\gtc\matrix_transform.hpp>
 
 #include "Shader.h"
 
@@ -30,18 +31,29 @@ public:
 
 private:
 	SDL_Window* mainWindow = nullptr;
+
 	SDL_GLContext gl_Context;
+
 	GLuint VertexArrayID;
 	GLuint vertexbuffer;
 	GLuint programID;
 	GLuint modelMatrixLocation;
-	glm::vec3 position;
+
 	glm::mat4 modelMatrix;
+	glm::mat4 translationMatrix;
+	glm::mat4 scaleMatrix;
+	glm::mat4 rotationMatrix;
+
+	glm::vec3 position;
+	glm::vec3 rotation;
+	glm::vec3 scaling;
 
 	//Initialise times
 	float lastTime = 0;
 	float tickTime = 0;
 	float deltaTime = 0;
+
+	float angle = 0;
 
 	bool isRunning = false;
 };
