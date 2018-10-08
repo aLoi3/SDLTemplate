@@ -3,6 +3,13 @@
 #include <SDL.h>
 #include <GL\glew.h>
 #include <SDL_opengl.h>
+#include <glm\glm.hpp>
+
+#define GLM_ENABLE_EXPERIMENTAL
+
+#include <glm\gtx\transform.hpp>
+#include <glm\gtc\type_ptr.hpp>
+
 #include "Shader.h"
 
 class Game
@@ -18,12 +25,18 @@ public:
 	int initialiseGLEW();
 	bool SetOpenGLAttributes();
 	int initialise();
+	int getVertex();
+	int getShaders();
 
 private:
 	SDL_Window* mainWindow = nullptr;
 	SDL_GLContext gl_Context;
 	GLuint VertexArrayID;
 	GLuint vertexbuffer;
+	GLuint programID;
+	GLuint modelMatrixLocation;
+	glm::vec3 position;
+	glm::mat4 modelMatrix;
 
 	//Initialise times
 	float lastTime = 0;
