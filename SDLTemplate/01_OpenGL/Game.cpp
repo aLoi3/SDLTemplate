@@ -2,6 +2,7 @@
 
 #include "Game.h"
 #include "Variables.h"
+#include "Vertex.h"
 
 #include <vector>
 #include <time.h>
@@ -50,30 +51,33 @@ int Game::loop()
 						isRunning = false;
 						break;
 
-					case SDLK_UP: // Arrow key up
+					case SDLK_w: // Arrow key up
 						position.y += 0.05f;
 						modelMatrix = glm::translate(position);
 						break;
 
-					case SDLK_DOWN: // Arrow key down
+					case SDLK_s: // Arrow key down
 						position.y -= 0.05f;
 						modelMatrix = glm::translate(position);
 						break;
 
-					case SDLK_RIGHT: // Arrow key right
+					case SDLK_d: // Arrow key right
 						position.x += 0.05f;
 						modelMatrix = glm::translate(position);
 						break;
 
-					case SDLK_LEFT: // Arrow key left
+					case SDLK_a: // Arrow key left
 						position.x -= 0.05f;
 						modelMatrix = glm::translate(position);
 						break;
 
 					case SDLK_q: // Rotate left
-						modelMatrix = glm::rotate(modelMatrix, glm::radians(10), glm::vec3(0.0f, 0.0f, 10.0f));
+						rotation.x += 0.1f;
+						modelMatrix = glm::rotate(rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
 						break;
 					case SDLK_e: // Rotate right
+						rotation.x -= 0.1f;
+						modelMatrix = glm::rotate(rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
 						break;
 				}
 				break;
@@ -110,7 +114,7 @@ int Game::initialiseSDL()
 
 		// Create a window
 		mainWindow = SDL_CreateWindow(
-			"SDL Window",
+			variables::title,
 			SDL_WINDOWPOS_UNDEFINED,
 			SDL_WINDOWPOS_UNDEFINED,
 			variables::SCREEN_WIDTH,
@@ -202,13 +206,26 @@ int Game::getVertex()
 		1.0f, -1.0f, 0.0f,
 		0.0f,  1.0f, 0.0f,
 	};
-
+	/*
+	static const int indices[] = 
+	{
+		0,1,2,
+		2,0,3
+	};
+	*/
 	// Generate 1 buffer, put the resulting identifier in vertexbuffer
 	glGenBuffers(1, &vertexbuffer);
 	// The following commands will talk about our 'vertexbuffer' buffer
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 	// Give our vertices to OpenGL.
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW); // 4*sizeof(Vertex) -> when square and "v" as 3rd parameter
+	/*
+	glGenBuffers(1, &elementbuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6*sizeof(int), indices, GL_STATIC_DRAW);
+	*/
+	position = glm::vec3(0.0f);
+	modelMatrix = glm::translate(position);
 
 	return 0;
 }
@@ -218,20 +235,40 @@ int Game::getShaders()
 	// Create and compile our GLSL program from the shaders
 	programID = LoadShaders("vertex.glsl", "fragment.glsl");
 
-	// Setting matrices to default
+	// Set up positions for position, rotation and scale
 	position = glm::vec3(0.0f, 0.0f, 0.0f);
-	scaling = glm::vec3(1.0f, 1.0f, 1.0f);
 	rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+	scaling = glm::vec3(1.0f, 1.0f, 1.0f);
+
+	//calculate the translation, rotation and scale matrices using the above vectores
+	translationMatrix = glm::translate(position);
+	rotationMatrix = glm::rotate(rotation.x, glm::vec3(1.0f, 0.0f, 0.0f))
+		*glm::rotate(rotation.y, glm::vec3(0.0f, 1.0f, 0.0f))
+		*glm::rotate(rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
+	scaleMatrix = glm::scale(scaling);
+
+	modelMatrix = translationMatrix * rotationMatrix * scaleMatrix;
+
+	//Set up vectors for our camera position
+	cameraPosition = glm::vec3(0.0f, 0.0f, -5.0f);
+	cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+	cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+	//Calculate the view matrix
+	viewMatrix = glm::lookAt(cameraPosition, cameraTarget, cameraUp);
+	//Calculate our perspective matrix
+	projectionMatrix = glm::perspective(glm::radians(45.0f), (float)800 / (float)640, 0.1f, 100.0f);
+
+	//Get the uniforms from the shader
+	modelMatrixUniformLocation = glGetUniformLocation(programID, "modelMatrix");
+	viewMatrixUniformLocation = glGetUniformLocation(programID, "viewMatrix");
+	projectionMatrixUniformLocation = glGetUniformLocation(programID, "projectionMatrix");
 
 	//translationMatrix = glm::translate(position);
 	//scaleMatrix = glm::scale(scaling);
 	//rotationMatrix = glm::rotate(rotation.x, glm::vec3(1.0f, 0.0f, 0.0f)) * (rotation.y, glm::vec3(0.0f, 1.0f, 0.0f)) * (rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
 
 	//modelMatrix = translationMatrix * rotationMatrix * scaleMatrix;
-
-	// Set Matrix Location
-	modelMatrixLocation = glGetUniformLocation(programID, "modelMatrix");
-
 
 	return 0;
 }
@@ -244,21 +281,41 @@ void Game::render()
 
 	glUseProgram(programID);
 
-	glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+	// glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer); -> for square
+
+	// glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, glm::value_ptr(modelMatrix));
 
 	// 1st attribute buffer : vertices
 	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 	glVertexAttribPointer(
-		0,			// attribute 0. No particular reason for 0, but must match the layout in the shader.
-		3,			// size
-		GL_FLOAT,	// type
-		GL_FALSE,	// normalized?
-		0,			// stride
-		(void*)0	// array buffer offset
+		0,					// attribute 0. No particular reason for 0, but must match the layout in the shader.
+		3,					// size
+		GL_FLOAT,			// type
+		GL_FALSE,			// normalized?
+		sizeof(Vertex),		// stride
+		(void*)0			// array buffer offset
 	);
+
+	//send the uniforms across
+	glUniformMatrix4fv(modelMatrixUniformLocation, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+	glUniformMatrix4fv(viewMatrixUniformLocation, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+	glUniformMatrix4fv(projectionMatrixUniformLocation, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+
+	/*
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(
+		1,
+		4,
+		GL_FLOAT,
+		GL_FALSE,
+		sizeof(Vertex),
+		(void*)(3 * sizeof(float))
+	); 
+	*/
 	// Draw the triangle !
 	glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 trangle
+	// glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*) 0);
 	glDisableVertexAttribArray(0);
 
 	SDL_GL_SwapWindow(mainWindow);

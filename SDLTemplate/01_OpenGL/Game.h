@@ -37,16 +37,25 @@ private:
 	GLuint VertexArrayID;
 	GLuint vertexbuffer;
 	GLuint programID;
-	GLuint modelMatrixLocation;
+	GLuint elementbuffer;
+
+	GLint modelMatrixUniformLocation;
+	GLint viewMatrixUniformLocation;
+	GLint projectionMatrixUniformLocation;
 
 	glm::mat4 modelMatrix;
 	glm::mat4 translationMatrix;
 	glm::mat4 scaleMatrix;
 	glm::mat4 rotationMatrix;
+	glm::mat4 projectionMatrix;
+	glm::mat4 viewMatrix;
 
 	glm::vec3 position;
 	glm::vec3 rotation;
 	glm::vec3 scaling;
+	glm::vec3 cameraPosition;
+	glm::vec3 cameraTarget;
+	glm::vec3 cameraUp;
 
 	//Initialise times
 	float lastTime = 0;
