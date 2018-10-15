@@ -71,12 +71,20 @@ int Game::loop()
 						modelMatrix = glm::translate(position);
 						break;
 
-					case SDLK_q: // Rotate left
-						rotation.x += 0.1f;
+					case SDLK_KP_4: // Rotate left
+						rotation.y -= 0.1f;
+						modelMatrix = glm::rotate(rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
+						break;
+					case SDLK_KP_6: // Rotate right
+						rotation.y += 0.1f;
+						modelMatrix = glm::rotate(rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
+						break;
+					case SDLK_KP_8: // Rotate up
+						rotation.x -= 0.1f;
 						modelMatrix = glm::rotate(rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
 						break;
-					case SDLK_e: // Rotate right
-						rotation.x -= 0.1f;
+					case SDLK_KP_2: // Rotate down
+						rotation.x += 0.1f;
 						modelMatrix = glm::rotate(rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
 						break;
 				}
@@ -224,8 +232,8 @@ int Game::getVertex()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6*sizeof(int), indices, GL_STATIC_DRAW);
 	*/
-	position = glm::vec3(0.0f);
-	modelMatrix = glm::translate(position);
+	//position = glm::vec3(0.0f);
+	//modelMatrix = glm::translate(position);
 
 	return 0;
 }
@@ -238,7 +246,7 @@ int Game::getShaders()
 	// Set up positions for position, rotation and scale
 	position = glm::vec3(0.0f, 0.0f, 0.0f);
 	rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-	scaling = glm::vec3(1.0f, 1.0f, 1.0f);
+	scaling = glm::vec3(0.5f, 0.5f, 1.0f);
 
 	//calculate the translation, rotation and scale matrices using the above vectores
 	translationMatrix = glm::translate(position);
@@ -250,7 +258,7 @@ int Game::getShaders()
 	modelMatrix = translationMatrix * rotationMatrix * scaleMatrix;
 
 	//Set up vectors for our camera position
-	cameraPosition = glm::vec3(0.0f, 0.0f, -5.0f);
+	cameraPosition = glm::vec3(0.0f, 0.0f, 10.0f);
 	cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
 	cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
@@ -276,24 +284,22 @@ int Game::getShaders()
 void Game::render()
 {
 	// Update Game and Draw with OpenGL
-	glClearColor(0.0, 1.0, 0.0, 1.0);
+	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glUseProgram(programID);
 
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 	// glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer); -> for square
-
-	// glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, glm::value_ptr(modelMatrix));
 
 	// 1st attribute buffer : vertices
 	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 	glVertexAttribPointer(
 		0,					// attribute 0. No particular reason for 0, but must match the layout in the shader.
 		3,					// size
 		GL_FLOAT,			// type
 		GL_FALSE,			// normalized?
-		sizeof(Vertex),		// stride
+		0,					// stride -> sizeof(Vertex)
 		(void*)0			// array buffer offset
 	);
 

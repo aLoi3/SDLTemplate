@@ -38,10 +38,9 @@ private:
 	GLuint vertexbuffer;
 	GLuint programID;
 	GLuint elementbuffer;
-
-	GLint modelMatrixUniformLocation;
-	GLint viewMatrixUniformLocation;
-	GLint projectionMatrixUniformLocation;
+	GLuint modelMatrixUniformLocation;
+	GLuint viewMatrixUniformLocation;
+	GLuint projectionMatrixUniformLocation;
 
 	glm::mat4 modelMatrix;
 	glm::mat4 translationMatrix;

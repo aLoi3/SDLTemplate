@@ -2,9 +2,10 @@
 
 out vec4 color;
 
-in vec4 vertexColourOut;
+//in vec4 vertexColourOut;
 
 void main()
 {
-	color = vertexColourOut;
+	//color = vertexColourOut;
+	color = vec4(1, 1, 0, 1);
 }
